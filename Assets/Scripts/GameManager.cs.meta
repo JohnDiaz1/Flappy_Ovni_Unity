@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: abb009cd7d595cf46be49f77cc30935a
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - GameOver: {instanceID: 0}
+  - Play: {instanceID: 0}
+  - Score: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
