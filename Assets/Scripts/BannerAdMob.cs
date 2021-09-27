@@ -2,17 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using GoogleMobileAds.Api;
 
 public class BannerAdMob : MonoBehaviour
 {
 
     private int scoreAdReward;
 
-    string bannerAdUnitId = "f4883f53e5ddd3cb";
-    string intersicialUnitId = "d651db7115d8f6d4";
-    string rewardUnitId = "2e1eed1ffb6aa580";
+    private BannerView bannerView;
+    private InterstitialAd interstitial;
+    private RewardedAd rewardedAd;
 
-    int retryAttempt;
+    string adUnitId = "ca-app-pub-3254757154675329/5427948971";
+    string intersicialUnitId = "ca-app-pub-3254757154675329/5612121119";
+    string rewardUnitId = "ca-app-pub-3254757154675329/3923295616";
+
 
     //ca-app-pub-3120121289944186/2529644622 banner real
     //ca-app-pub-3120121289944186/6041019385 Intersical real
@@ -33,132 +37,161 @@ public class BannerAdMob : MonoBehaviour
 
     private void RequestBanner()
     {
+        this.bannerView = new BannerView(adUnitId, AdSize.Banner, AdPosition.Bottom);
+        // Create an empty ad request.
+        AdRequest request = new AdRequest.Builder().Build();
 
-        // Adaptive banners are sized based on device width for positions that stretch full width (TopCenter and BottomCenter).
-    // You may use the utility method `MaxSdkUtils.GetAdaptiveBannerHeight()` to help with view sizing adjustments
-        MaxSdk.CreateBanner(bannerAdUnitId, MaxSdkBase.BannerPosition.BottomCenter);
-        MaxSdk.SetBannerExtraParameter(bannerAdUnitId, "adaptive_banner", "true");
-
-        MaxSdk.ShowBanner(bannerAdUnitId);
+        // Load the banner with the request.
+        this.bannerView.LoadAd(request);
 
     }
 
     private void RequestInterstitial()
     {
+        // Initialize an InterstitialAd.
+        this.interstitial = new InterstitialAd(intersicialUnitId);
 
-        
+        // Called when an ad request has successfully loaded.
+        this.interstitial.OnAdLoaded += HandleOnAdLoaded;
+        // Called when an ad request failed to load.
+        this.interstitial.OnAdFailedToLoad += HandleOnAdFailedToLoad;
+        // Called when an ad is shown.
+        this.interstitial.OnAdOpening += HandleOnAdOpened;
+        // Called when the ad is closed.
+        this.interstitial.OnAdClosed += HandleOnAdClosed;
 
-         // Attach callback
-    MaxSdkCallbacks.OnInterstitialLoadedEvent += OnInterstitialLoadedEvent;
-    MaxSdkCallbacks.OnInterstitialLoadFailedEvent += OnInterstitialFailedEvent;
-    MaxSdkCallbacks.OnInterstitialAdFailedToDisplayEvent += InterstitialFailedToDisplayEvent;
-    MaxSdkCallbacks.OnInterstitialHiddenEvent += OnInterstitialDismissedEvent;
-
-    // Load the first interstitial
-    LoadInterstitial();
+        // Load the first interstitial
+        LoadInterstitial();
 
     }
 
     private void RequestAdReward()
     {
 
-        // Attach callback
-    MaxSdkCallbacks.OnRewardedAdLoadedEvent += OnRewardedAdLoadedEvent;
-    MaxSdkCallbacks.OnRewardedAdLoadFailedEvent += OnRewardedAdFailedEvent;
-    MaxSdkCallbacks.OnRewardedAdFailedToDisplayEvent += OnRewardedAdFailedToDisplayEvent;
-    MaxSdkCallbacks.OnRewardedAdDisplayedEvent += OnRewardedAdDisplayedEvent;
-    MaxSdkCallbacks.OnRewardedAdClickedEvent += OnRewardedAdClickedEvent;
-    MaxSdkCallbacks.OnRewardedAdHiddenEvent += OnRewardedAdDismissedEvent;
-    MaxSdkCallbacks.OnRewardedAdReceivedRewardEvent += OnRewardedAdReceivedRewardEvent;
+        this.rewardedAd = new RewardedAd(rewardUnitId);
 
-    // Load the first rewarded ad
-    LoadRewardedAd();
+        // Called when an ad request has successfully loaded.
+        this.rewardedAd.OnAdLoaded += HandleRewardedAdLoaded;
+        // Called when an ad request failed to load.
+        this.rewardedAd.OnAdFailedToLoad += HandleRewardedAdFailedToLoad;
+        // Called when an ad is shown.
+        this.rewardedAd.OnAdOpening += HandleRewardedAdOpening;
+        // Called when an ad request failed to show.
+        this.rewardedAd.OnAdFailedToShow += HandleRewardedAdFailedToShow;
+        // Called when the user should be rewarded for interacting with the ad.
+        this.rewardedAd.OnUserEarnedReward += HandleUserEarnedReward;
+        // Called when the ad is closed.
+        this.rewardedAd.OnAdClosed += HandleRewardedAdClosed;
+
+        // Load the first rewarded ad
+        LoadRewardedAd();
 
     }
 
     private void LoadRewardedAd()
-{
-    MaxSdk.LoadRewardedAd(rewardUnitId);
-}
+    {
+        // Create an empty ad request.
+        AdRequest request = new AdRequest.Builder().Build();
+        // Load the rewarded ad with the request.
+        this.rewardedAd.LoadAd(request);
+    }
 
-private void OnRewardedAdLoadedEvent(string adUnitId)
-{
-    // Rewarded ad is ready to be shown. MaxSdk.IsRewardedAdReady(adUnitId) will now return 'true'
+    public void showIntersicial()
+    {
+        if (this.interstitial.IsLoaded())
+        {
+            this.interstitial.Show();
+        }
+    }
 
-    // Reset retry attempt
-    retryAttempt = 0;
-}
+    public void HandleRewardedAdLoaded(object sender, EventArgs args)
+    {
+        MonoBehaviour.print("HandleRewardedAdLoaded event received");
+    }
 
-private void OnRewardedAdFailedEvent(string adUnitId, int errorCode)
-{
-    // Rewarded ad failed to load 
-    // We recommend retrying with exponentially higher delays up to a maximum delay (in this case 64 seconds)
+    public void HandleRewardedAdFailedToLoad(object sender, AdFailedToLoadEventArgs args)
+    {
+        
+    }
 
-    retryAttempt++;
-    double retryDelay = Math.Pow(2, Math.Min(6, retryAttempt));
-    
-    Invoke("LoadRewardedAd", (float) retryDelay);
-}
+    public void HandleRewardedAdOpening(object sender, EventArgs args)
+    {
+        MonoBehaviour.print("HandleRewardedAdOpening event received");
+    }
 
-private void OnRewardedAdFailedToDisplayEvent(string adUnitId, int errorCode)
-{
-    // Rewarded ad failed to display. We recommend loading the next ad
-    LoadRewardedAd();
-}
+    public void HandleRewardedAdFailedToShow(object sender, AdErrorEventArgs args)
+    {
+        MonoBehaviour.print(
+            "HandleRewardedAdFailedToShow event received with message: "
+                             + args.Message);
+    }
 
-private void OnRewardedAdDisplayedEvent(string adUnitId) {}
+    public void HandleRewardedAdClosed(object sender, EventArgs args)
+    {
+        MonoBehaviour.print("HandleRewardedAdClosed event received");
+    }
 
-private void OnRewardedAdClickedEvent(string adUnitId) {}
-
-private void OnRewardedAdDismissedEvent(string adUnitId)
-{
-    // Rewarded ad is hidden. Pre-load the next ad
-    LoadRewardedAd();
-}
-
-private void OnRewardedAdReceivedRewardEvent(string adUnitId, MaxSdk.Reward reward)
-{
-    // Rewarded ad was displayed and user should receive the reward
-}
+    public void HandleUserEarnedReward(object sender, Reward args)
+    {
+        //Darle recompensa al usuario
+        string type = args.Type;
+        double amount = args.Amount;
+        MonoBehaviour.print(
+            "HandleRewardedAdRewarded event received for "
+                        + amount.ToString() + " " + type);
+    }
 
 
-//-----------------------INTERSICIAL------------------------------------
+    //-----------------------INTERSICIAL------------------------------------
 
     private void LoadInterstitial()
 {
-    MaxSdk.LoadInterstitial(intersicialUnitId);
-}
+        // Create an empty ad request.
+        AdRequest request = new AdRequest.Builder().Build();
+        // Load the interstitial with the request.
+        this.interstitial.LoadAd(request);
+    }
 
-private void OnInterstitialLoadedEvent(string adUnitId)
-{
-    // Interstitial ad is ready to be shown. MaxSdk.IsInterstitialReady(adUnitId) will now return 'true'
+    public Boolean rewardIsLoaded()
+    {
+        if (this.rewardedAd.IsLoaded())
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
 
-    // Reset retry attempt
-    retryAttempt = 0;
-}
+    }
 
-private void OnInterstitialFailedEvent(string adUnitId, int errorCode)
-{
-    // Interstitial ad failed to load 
-    // We recommend retrying with exponentially higher delays up to a maximum delay (in this case 64 seconds)
+    public void showReward()
+    {
+        if (this.rewardedAd.IsLoaded())
+        {
+            this.rewardedAd.Show();
+        }
+    }
 
-    retryAttempt++;
-    double retryDelay = Math.Pow(2, Math.Min(6, retryAttempt));
-    
-    Invoke("LoadInterstitial", (float) retryDelay);
-}
+    public void HandleOnAdLoaded(object sender, EventArgs args)
+    {
+        MonoBehaviour.print("HandleAdLoaded event received");
+    }
 
-private void InterstitialFailedToDisplayEvent(string adUnitId, int errorCode)
-{
-    // Interstitial ad failed to display. We recommend loading the next ad
-    LoadInterstitial();
-}
+    public void HandleOnAdFailedToLoad(object sender, AdFailedToLoadEventArgs args)
+    {
+    }
 
-private void OnInterstitialDismissedEvent(string adUnitId)
-{
-    // Interstitial ad is hidden. Pre-load the next ad
-    LoadInterstitial();
-}
+    public void HandleOnAdOpened(object sender, EventArgs args)
+    {
+        MonoBehaviour.print("HandleAdOpened event received");
+    }
+
+    public void HandleOnAdClosed(object sender, EventArgs args)
+    {
+        MonoBehaviour.print("HandleAdClosed event received");
+    }
+
 
 
 }

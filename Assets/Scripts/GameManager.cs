@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     public GameObject Score;
     public GameObject buttonAdReward;
     public static int adRewardPulsado = 0;
+    private BannerAdMob intersicial, reward;
     
 
     // Start is called before the first frame update
@@ -28,13 +29,12 @@ public class GameManager : MonoBehaviour
     {
         if (PlayerPrefs.GetInt("ads") == 0)
         {
-            if ( MaxSdk.IsInterstitialReady("d651db7115d8f6d4") )
-                {
-                     MaxSdk.ShowInterstitial("d651db7115d8f6d4");
-                }
+            
+                intersicial.showIntersicial();
+            
         }
 
-            if (MaxSdk.IsRewardedAdReady("2e1eed1ffb6aa580"))
+            if (reward.rewardIsLoaded())
             {
                 buttonAdReward.SetActive(true);
             }
@@ -61,11 +61,11 @@ public class GameManager : MonoBehaviour
 
     public void AdReward()
     {
-        if (MaxSdk.IsRewardedAdReady("2e1eed1ffb6aa580"))
+        if (reward.rewardIsLoaded())
         {
             adRewardPulsado = adRewardPulsado + 1;
             PlayerPrefs.SetInt("pulsado", adRewardPulsado);
-            MaxSdk.ShowRewardedAd("2e1eed1ffb6aa580");
+            reward.showReward();
         }
     }
 
