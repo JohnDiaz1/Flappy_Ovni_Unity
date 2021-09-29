@@ -23,6 +23,7 @@ public class PurchsaseADS:MonoBehaviour
 #endif
 
         PlayerPrefs.SetInt("ads", 1);
+        PlayServices.SaveAds();
         //SE le Da al usuario el producto
     }
 

@@ -10,8 +10,8 @@ public class BannerAdMob : MonoBehaviour
     private int scoreAdReward;
 
     private BannerView bannerView;
-    private InterstitialAd interstitial;
-    private RewardedAd rewardedAd;
+    private static InterstitialAd interstitial;
+    private static RewardedAd rewardedAd;
 
     string adUnitId = "ca-app-pub-3254757154675329/5427948971";
     string intersicialUnitId = "ca-app-pub-3254757154675329/5612121119";
@@ -49,58 +49,56 @@ public class BannerAdMob : MonoBehaviour
     private void RequestInterstitial()
     {
         // Initialize an InterstitialAd.
-        this.interstitial = new InterstitialAd(intersicialUnitId);
+        interstitial = new InterstitialAd(intersicialUnitId);
 
         // Called when an ad request has successfully loaded.
-        this.interstitial.OnAdLoaded += HandleOnAdLoaded;
+        interstitial.OnAdLoaded += HandleOnAdLoaded;
         // Called when an ad request failed to load.
-        this.interstitial.OnAdFailedToLoad += HandleOnAdFailedToLoad;
+        interstitial.OnAdFailedToLoad += HandleOnAdFailedToLoad;
         // Called when an ad is shown.
-        this.interstitial.OnAdOpening += HandleOnAdOpened;
+        interstitial.OnAdOpening += HandleOnAdOpened;
         // Called when the ad is closed.
-        this.interstitial.OnAdClosed += HandleOnAdClosed;
+        interstitial.OnAdClosed += HandleOnAdClosed;
 
-        // Load the first interstitial
-        LoadInterstitial();
+        // Create an empty ad request.
+        AdRequest request = new AdRequest.Builder().Build();
+        // Load the interstitial with the request.
+        interstitial.LoadAd(request);
 
     }
 
     private void RequestAdReward()
     {
 
-        this.rewardedAd = new RewardedAd(rewardUnitId);
+        rewardedAd = new RewardedAd(rewardUnitId);
 
         // Called when an ad request has successfully loaded.
-        this.rewardedAd.OnAdLoaded += HandleRewardedAdLoaded;
+        rewardedAd.OnAdLoaded += HandleRewardedAdLoaded;
         // Called when an ad request failed to load.
-        this.rewardedAd.OnAdFailedToLoad += HandleRewardedAdFailedToLoad;
+        rewardedAd.OnAdFailedToLoad += HandleRewardedAdFailedToLoad;
         // Called when an ad is shown.
-        this.rewardedAd.OnAdOpening += HandleRewardedAdOpening;
+        rewardedAd.OnAdOpening += HandleRewardedAdOpening;
         // Called when an ad request failed to show.
-        this.rewardedAd.OnAdFailedToShow += HandleRewardedAdFailedToShow;
+        rewardedAd.OnAdFailedToShow += HandleRewardedAdFailedToShow;
         // Called when the user should be rewarded for interacting with the ad.
-        this.rewardedAd.OnUserEarnedReward += HandleUserEarnedReward;
+        rewardedAd.OnUserEarnedReward += HandleUserEarnedReward;
         // Called when the ad is closed.
-        this.rewardedAd.OnAdClosed += HandleRewardedAdClosed;
+        rewardedAd.OnAdClosed += HandleRewardedAdClosed;
 
         // Load the first rewarded ad
-        LoadRewardedAd();
-
-    }
-
-    private void LoadRewardedAd()
-    {
         // Create an empty ad request.
         AdRequest request = new AdRequest.Builder().Build();
         // Load the rewarded ad with the request.
-        this.rewardedAd.LoadAd(request);
+        rewardedAd.LoadAd(request);
+
     }
 
-    public void showIntersicial()
+
+    public static void showIntersicial()
     {
-        if (this.interstitial.IsLoaded())
+        if (interstitial.IsLoaded())
         {
-            this.interstitial.Show();
+            interstitial.Show();
         }
     }
 
@@ -144,17 +142,9 @@ public class BannerAdMob : MonoBehaviour
 
     //-----------------------INTERSICIAL------------------------------------
 
-    private void LoadInterstitial()
-{
-        // Create an empty ad request.
-        AdRequest request = new AdRequest.Builder().Build();
-        // Load the interstitial with the request.
-        this.interstitial.LoadAd(request);
-    }
-
-    public Boolean rewardIsLoaded()
+    public static Boolean rewardIsLoaded()
     {
-        if (this.rewardedAd.IsLoaded())
+        if (rewardedAd.IsLoaded())
         {
             return true;
         }
@@ -165,11 +155,11 @@ public class BannerAdMob : MonoBehaviour
 
     }
 
-    public void showReward()
+    public static void showReward()
     {
-        if (this.rewardedAd.IsLoaded())
+        if (rewardedAd.IsLoaded())
         {
-            this.rewardedAd.Show();
+            rewardedAd.Show();
         }
     }
 

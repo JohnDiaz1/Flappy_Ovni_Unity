@@ -7,7 +7,22 @@
 			"GoogleID":"CgkI9qjS8c0MEAIQAw"
 		}
 	],
-	"CloudVariables":[],
+	"CloudVariables":[
+		{
+			"Key":"HighScore",
+			"Type":"0",
+			"DefaultValue":"0",
+			"PersistenceType":"1",
+			"AllowNegative":false
+		},
+		{
+			"Key":"Ads",
+			"Type":"0",
+			"DefaultValue":"0",
+			"PersistenceType":"0",
+			"AllowNegative":false
+		}
+	],
 	"AppleSupported":false,
 	"GoogleSupported":true,
 	"GoogleAppID":"433224717430",
